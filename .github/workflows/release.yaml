@@ -7,9 +7,9 @@ on:
 
 env:
   # update with the name of the main binary
-  binary: bevy_github_ci_template
+  binary: bevy_blast_ultra
   add_binaries_to_github_release: true
-  #itch_target: <itch.io-username>/<game-name>
+  itch_target: 1-doomy/bevy-blast-ultra
 
 
 jobs:
