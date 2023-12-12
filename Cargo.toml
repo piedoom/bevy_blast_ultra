@@ -17,8 +17,8 @@ bevy_common_assets = { version = "0.8.0", features = ["ron"] }
 # bevy_atmosphere = "0.8.1"
 bevy_easings = "0.12.2"
 bevy_egui = "0.23.0"
-bevy_gltf_blueprints = { path = "../blender_bevy_components_workflow/crates/bevy_gltf_blueprints" }
-bevy_gltf_components = { path = "../blender_bevy_components_workflow/crates/bevy_gltf_components" }
+bevy_gltf_blueprints = { git = "https://github.com/piedoom/blender_bevy_components_workflow" }
+bevy_gltf_components = { git = "https://github.com/piedoom/blender_bevy_components_workflow" }
 bevy_xpbd_3d = "0.3"
 egui_extras = { version = "0.23.0", features = ["file", "image"] }
 leafwing-input-manager = "0.11.1"
