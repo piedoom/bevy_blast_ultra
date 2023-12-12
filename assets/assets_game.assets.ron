@@ -1,0 +1,20 @@
+({
+    "levels":Files (paths: ["levels/level_1.gltf", "levels/level_2.gltf", "levels/level_3.gltf", "levels/level_4.gltf", "levels/level_5.gltf"]),
+    "menu": File(path: "levels/menu.gltf"),
+
+    "environment_diffuse": File(path: "environments/diffuse.png"),
+    "environment_specular": File(path: "environments/specular.png"),
+    
+    "library":Files (paths: ["levels/library/goal.gltf", "levels/library/player.gltf", "levels/library/powerup_spawner.gltf"]),
+
+    "images": Files (paths: ["images/logo.png"]),
+
+    "sfx":Files (paths: ["audio/sfx/roll.ogg", "audio/sfx/score.ogg"]),
+
+    "music": Files(paths:["audio/music/music.ogg"]),
+    
+    "background": File (
+        path: "my-background.ogg",
+    ),
+    "settings": File(path: "default.settings.ron"),
+})

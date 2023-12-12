@@ -1,0 +1,7 @@
+/target
+/imported_assets
+*.blend1
+# this keeps getting exported due to an error (?) with the blender workflow
+/assets/library
+/out
+*.mmcr

@@ -1,0 +1,27 @@
+[package]
+name = "bevy_blast_ultra"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bevy = { version = "0.12.1", features = ["trace", "hdr"] }
+bevy-inspector-egui = "0.21.0"
+bevy_asset_loader = { version = "0.18.0", features = [
+    "2d",
+    "3d",
+    "standard_dynamic_assets",
+] }
+bevy_common_assets = { version = "0.8.0", features = ["ron"] }
+# bevy_atmosphere = "0.8.1"
+bevy_easings = "0.12.2"
+bevy_egui = "0.23.0"
+bevy_gltf_blueprints = { path = "../blender_bevy_components_workflow/crates/bevy_gltf_blueprints" }
+bevy_gltf_components = { path = "../blender_bevy_components_workflow/crates/bevy_gltf_components" }
+bevy_xpbd_3d = "0.3"
+egui_extras = { version = "0.23.0", features = ["file", "image"] }
+leafwing-input-manager = "0.11.1"
+serde = "1.0.193"
+image = { version = "0.24", features = ["png"] }
+bevy_wasm_window_resize = "0.2.1"

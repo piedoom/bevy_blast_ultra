@@ -1,0 +1,35 @@
+SettingsAsset(
+    game: (
+        player: (
+            torque_strength: 4.8,
+            jump_strength: 6.0,
+            friction: 0.9,
+            density: 1.0,
+            magnetism_deadzone: 0.5,
+            magnetism_strength: 1.0,
+            influence_radius: 5.0,
+        ),
+        camera: (
+            sensitivity: (3.0, 1.5),
+            fov: 90,
+            fov_multiplier_range: RangeInclusive( start: 1.2, end: 0.9 ),
+            angle_range: RangeInclusive( start: 160, end: 80 ),
+            distance: 7,
+        )
+    ),
+    ui: (
+        scene: (
+            rotation_speed: 0.1,
+        ),
+        font: (
+            base: 24,
+            title_scale: 3,
+            subtitle_scale: 2,
+            body_scale: 1,
+        )
+    ),
+    audio: (
+        spatial_scale: 0.1,
+        sfx_volume: 1.0,
+    )
+)
