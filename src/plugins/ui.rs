@@ -3,6 +3,7 @@ use bevy_egui::{
     egui::{self, epaint::Shadow, Color32, FontId, Frame, Stroke},
     EguiContexts, EguiSettings,
 };
+use bevy_egui_kbgp::prelude::*;
 use bevy_gltf_blueprints::GameWorldTag;
 use bevy_xpbd_3d::plugins::debug::PhysicsDebugConfig;
 use leafwing_input_manager::action_state::ActionState;
@@ -12,6 +13,11 @@ use crate::prelude::*;
 use super::input::Action;
 
 pub struct UiPlugin;
+
+#[derive(Clone)]
+pub enum UiActions {
+    ToggleMenu,
+}
 
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
@@ -23,7 +29,18 @@ impl Plugin for UiPlugin {
             )
             .add_systems(Update, (game_ui,).run_if(in_state(GameState::Main)))
             .add_systems(Update, post_game_ui.run_if(in_state(GameState::Post)))
-            .add_systems(Update, pause_menu_ui.run_if(in_state(GameState::Pause)));
+            .add_systems(Update, pause_menu_ui.run_if(in_state(GameState::Pause)))
+            .insert_resource(KbgpSettings {
+                bindings: {
+                    bevy_egui_kbgp::KbgpNavBindings::default()
+                        .with_wasd_navigation()
+                        .with_arrow_keys_navigation()
+                        .with_gamepad_dpad_navigation_and_south_button_activation()
+                        .with_key(KeyCode::Escape, KbgpNavCommand::user(UiActions::ToggleMenu))
+                    //  .with_gamepad_button(GamepadButtonType::Start, KbgpNavCommand::user(UiActions::Menu))
+                },
+                ..default()
+            });
     }
 }
 
@@ -127,12 +144,18 @@ fn menu_ui(
                                         selected_level.0 == i,
                                         format!("Level {i}"),
                                     ))
+                                    .kbgp_navigation()
                                     .clicked()
                                 {
                                     selected_level.0 = i
                                 }
                             });
-                            if ui.button("Start").clicked() {
+                            if ui
+                                .button("Start")
+                                .kbgp_navigation()
+                                .kbgp_initial_focus()
+                                .clicked()
+                            {
                                 cmd.insert_resource(CurrentLevelIndex(selected_level.0));
                                 state.set(GameState::LevelTransition {
                                     level: level_paths[selected_level.0].clone(),
@@ -244,7 +267,12 @@ fn post_game_ui(
                                             .font(FontId::proportional(font.size_title()))
                                             .color(Color32::GREEN),
                                     );
-                                    if ui.button("Next level").clicked() {
+                                    if ui
+                                        .button("Next level")
+                                        .kbgp_navigation()
+                                        .kbgp_initial_focus()
+                                        .clicked()
+                                    {
                                         current_level.0 += 1;
                                         state.set(GameState::LevelTransition {
                                             level: level.clone(),
@@ -296,17 +324,22 @@ fn pause_menu_ui(
                     ),
                     |ui| {
                         ui.vertical_centered_justified(|ui| {
-                            if ui.button("Resume").clicked() {
+                            if ui
+                                .button("Resume")
+                                .kbgp_navigation()
+                                .kbgp_initial_focus()
+                                .clicked()
+                            {
                                 state.set(GameState::Main);
                             }
 
-                            if ui.button("Restart level").clicked() {
+                            if ui.button("Restart level").kbgp_navigation().clicked() {
                                 state.set(GameState::LevelTransition {
                                     level: assets.levels[current_level.0].clone(),
                                 });
                             }
 
-                            if ui.button("Main menu").clicked() {
+                            if ui.button("Main menu").kbgp_navigation().clicked() {
                                 state.set(GameState::Menu);
                             }
                         })

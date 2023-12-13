@@ -24,7 +24,8 @@ pub struct CameraSettings {
     /// Permitted camera angles in degrees
     pub angle_range: RangeInclusive<f32>,
     pub distance: f32,
-    pub sensitivity: Vec2,
+    pub mouse_sensitivity: Vec2,
+    pub controller_sensitivity: Vec2,
     pub fov: f32,
     pub fov_multiplier_range: RangeInclusive<f32>,
 }

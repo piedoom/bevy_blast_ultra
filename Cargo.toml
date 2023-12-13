@@ -25,3 +25,4 @@ leafwing-input-manager = "0.11.1"
 serde = "1.0.193"
 image = { version = "0.24", features = ["png"] }
 bevy_wasm_window_resize = "0.2.1"
+bevy-egui-kbgp = "0.16.0"

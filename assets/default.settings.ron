@@ -10,11 +10,12 @@ SettingsAsset(
             influence_radius: 5.0,
         ),
         camera: (
-            sensitivity: (3.0, 1.5),
+            controller_sensitivity: (3.0, 1.5),
+            mouse_sensitivity: (5.0, 5.0),
             fov: 90,
             fov_multiplier_range: RangeInclusive( start: 1.2, end: 0.9 ),
-            angle_range: RangeInclusive( start: 160, end: 80 ),
-            distance: 7,
+            angle_range: RangeInclusive( start: 200, end: 270 ),
+            distance: 7.0,
         )
     ),
     ui: (

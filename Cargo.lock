@@ -376,6 +376,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy-egui-kbgp"
+version = "0.16.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bc5f335d3d7ef96a0a5aa9b389693f007fd24927553bc812a4b119be8a58a2f0"
+dependencies = [
+ "bevy",
+ "bevy_egui",
+]
+
+[[package]]
 name = "bevy-inspector-egui"
 version = "0.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -553,6 +563,7 @@ name = "bevy_blast_ultra"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "bevy-egui-kbgp",
  "bevy-inspector-egui",
  "bevy_asset_loader",
  "bevy_common_assets",

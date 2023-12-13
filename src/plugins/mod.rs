@@ -52,8 +52,8 @@ impl Plugin for InitPlugin {
     fn build(&self, app: &mut App) {
         app.add_state::<GameState>() // Register all types intended to be used either in Blender or to be saved
             .register_type::<RigidBody>()
-            .register_type::<Collider>()
-            .register_type::<AutoCollider>()
+            .register_type::<blender::Collider>()
+            .register_type::<blender::AutoCollider>()
             .register_type::<Player>()
             .register_type::<PlayerInfluenceRadius>()
             .register_type::<OrbitCamera>()
@@ -72,23 +72,27 @@ impl Plugin for InitPlugin {
     }
 }
 
-/// Marker component for Blender compatibility. Replaced via [`physics_replace_proxies`].
-#[derive(Component, Reflect, Default, Debug)]
-#[reflect(Component)]
-pub enum Collider {
-    Ball(f32),
-    Cuboid(Vec3),
-    Capsule(Vec3, Vec3, f32),
-    #[default]
-    Mesh,
-}
+pub(crate) mod blender {
+    use super::*;
 
-/// Marker component for Blender compatibility. Replaced via [`physics_replace_proxies`].
-#[derive(Component, Reflect, Default, Debug)]
-#[reflect(Component)]
-pub enum AutoCollider {
-    #[default]
-    Cuboid,
-    Ball,
-    Capsule,
+    /// Marker component for Blender compatibility. Replaced via [`physics_replace_proxies`].
+    #[derive(Component, Reflect, Default, Debug)]
+    #[reflect(Component)]
+    pub enum Collider {
+        Ball(f32),
+        Cuboid(Vec3),
+        Capsule(Vec3, Vec3, f32),
+        #[default]
+        Mesh,
+    }
+
+    /// Marker component for Blender compatibility. Replaced via [`physics_replace_proxies`].
+    #[derive(Component, Reflect, Default, Debug)]
+    #[reflect(Component)]
+    pub enum AutoCollider {
+        #[default]
+        Cuboid,
+        Ball,
+        Capsule,
+    }
 }

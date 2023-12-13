@@ -130,6 +130,9 @@ fn spawn(
             composite_mode: BloomCompositeMode::Additive,
             ..default()
         },
+        ScreenSpaceAmbientOcclusionSettings {
+            quality_level: ScreenSpaceAmbientOcclusionQualityLevel::High,
+        },
     ));
 
     // Get the map to spawn
@@ -219,8 +222,12 @@ fn process_colliders(
     children: Query<&Children>,
     mut cmd: Commands,
     mut proxy_colliders: Query<
-        (Entity, &Collider, &Name, &mut Visibility),
-        (Without<XpbdCollider>, Added<Collider>, Without<Player>),
+        (Entity, &blender::Collider, &Name, &mut Visibility),
+        (
+            Without<XpbdCollider>,
+            Added<blender::Collider>,
+            Without<Player>,
+        ),
     >,
 ) {
     // Replace physics entities
@@ -236,21 +243,21 @@ fn process_colliders(
 
         let mut xpbd_collider: XpbdCollider;
         match collider_proxy {
-            Collider::Ball(radius) => {
+            blender::Collider::Ball(radius) => {
                 xpbd_collider = XpbdCollider::ball(*radius);
                 cmd.entity(entity)
                 .insert((xpbd_collider,  collision_layers, friction))
                 //.insert(ActiveEvents::COLLISION_EVENTS)  // FIXME: this is just for demo purposes (also is there something like that in xpbd ?) !!!
                 ;
             }
-            Collider::Cuboid(size) => {
+            blender::Collider::Cuboid(size) => {
                 xpbd_collider = XpbdCollider::cuboid(size.x, size.y, size.z);
                 cmd.entity(entity)
             .insert((xpbd_collider, collision_layers, friction))
                 //.insert(ActiveEvents::COLLISION_EVENTS)  // FIXME: this is just for demo purposes (also is there something like that in xpbd ?) !!!
                 ;
             }
-            Collider::Capsule(a, b, radius) => {
+            blender::Collider::Capsule(a, b, radius) => {
                 // FIXME: temp
                 let height = Vec3::distance(*a, *b);
                 xpbd_collider = XpbdCollider::capsule(height, *radius);
@@ -260,7 +267,7 @@ fn process_colliders(
                 //.insert(ActiveEvents::COLLISION_EVENTS)  // FIXME: this is just for demo purposes (also is there something like that in xpbd ?) !!!
                 ;
             }
-            Collider::Mesh => {
+            blender::Collider::Mesh => {
                 for (_, collider_mesh) in
                     Mesh::search_in_children(entity, &children, &meshes, &mesh_handles)
                 {

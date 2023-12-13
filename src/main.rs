@@ -2,6 +2,7 @@ use bevy::{prelude::*, window::WindowMode};
 use bevy_blast_ultra::prelude::*;
 use bevy_easings::EasingsPlugin;
 use bevy_egui::EguiPlugin;
+use bevy_egui_kbgp::KbgpPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_wasm_window_resize::WindowResizePlugin;
 use bevy_xpbd_3d::prelude::*;
@@ -25,6 +26,7 @@ fn main() {
             PhysicsDebugPlugin::default(),
             WorldInspectorPlugin::new().run_if(|debug: Res<DebugMode>| *debug == DebugMode::On),
             WindowResizePlugin,
+            KbgpPlugin,
         ))
         .insert_resource(DebugMode::Off)
         .insert_resource(bevy_xpbd_3d::resources::Gravity(Vec3::NEG_Z * 50f32))

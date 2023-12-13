@@ -1,8 +1,5 @@
 use bevy::{input::mouse::MouseMotion, prelude::*};
-use bevy_xpbd_3d::{
-    components::CollisionLayers,
-    plugins::spatial_query::{SpatialQuery, SpatialQueryFilter},
-};
+use bevy_xpbd_3d::prelude::*;
 use leafwing_input_manager::prelude::*;
 
 use crate::prelude::*;
@@ -68,17 +65,20 @@ fn orbit_camera_input(
     if let Ok((mut orbit_camera, mut projection)) = camera.get_single_mut() {
         if let Projection::Perspective(projection) = projection.as_mut() {
             if let Some(look) = actions.clamped_axis_pair(Action::Look) {
-                orbit_camera.add_view_angle_normalized(
-                    look.y() * camera_settings.sensitivity.y * time.delta_seconds(),
-                );
-                orbit_camera.add_view_angle_normalized(
-                    mouse_motion.y.to_radians() * camera_settings.sensitivity.y,
-                );
+                let sensitivity = if mouse_motion == Vec2::ZERO {
+                    camera_settings.controller_sensitivity
+                } else {
+                    camera_settings.mouse_sensitivity
+                };
 
-                orbit_camera.rotation -=
-                    look.x() * camera_settings.sensitivity.x * time.delta_seconds();
-                orbit_camera.rotation -=
-                    mouse_motion.x.to_radians() * camera_settings.sensitivity.x;
+                orbit_camera
+                    .add_view_angle_normalized(look.y() * sensitivity.y * time.delta_seconds());
+                orbit_camera
+                    .add_view_angle_normalized(-mouse_motion.y.to_radians() * sensitivity.y);
+
+                orbit_camera.rotation -= look.x() * sensitivity.x * time.delta_seconds();
+
+                orbit_camera.rotation -= mouse_motion.x.to_radians() * sensitivity.x;
             }
         }
     }
@@ -96,11 +96,13 @@ fn orbit_camera_movement(
     if let (Ok(focus_transform), Ok((camera_entity, camera_transform, orbit_camera))) =
         (focus.get_single(), camera.get_single())
     {
-        // We have the focus translation, so we need the desired camera
-        // translation. Then, we will find the direction from the focus to the
-        // camera, and cast a ray. If the ray intersects with anything before
-        // the desired length, the camera will instead be placed there as to
-        // avoid clipping into things
+        // // TODO: Camera casting logic is probably hurting more than helping. Can
+        // // we instead fade objects in and out nicely when they're close to the camera?
+        // // We have the focus translation, so we need the desired camera
+        // // translation. Then, we will find the direction from the focus to the
+        // // camera, and cast a ray. If the ray intersects with anything before
+        // // the desired length, the camera will instead be placed there as to
+        // // avoid clipping into things
         let mut cast = *focus_transform;
         cast.rotation = Quat::from_axis_angle(Vec3::Z, orbit_camera.rotation);
         cast.rotate_local_y(
@@ -110,28 +112,28 @@ fn orbit_camera_movement(
         );
 
         let mut new_camera_position = cast.forward();
-        // Cast a ray to the camera
-        if let Some(hit) = spatial.cast_ray(
-            cast.translation,
-            cast.forward(),
-            camera_settings.distance,
-            true,
-            SpatialQueryFilter::default().with_masks([Layer::Environment]),
-        ) {
-            // Ensure we are not in a solid object
-            // TODO: This is not working :((((((
-            if hit.time_of_impact != 0.0 {
-                new_camera_position *= hit.time_of_impact;
-                // take off a little distance to keep the camera from intersecting
-                // the floor
-                // TODO: shape cast and take the middle so that this is not necessary
-                new_camera_position *= 0.80f32;
-            } else {
-                new_camera_position *= camera_settings.distance;
-            }
-        } else {
-            new_camera_position *= camera_settings.distance;
-        }
+        // // Cast a ray to the camera
+        // if let Some(hit) = spatial.cast_shape(
+        //     &Collider::ball(0.1),
+        //     cast.translation,
+        //     default(),
+        //     cast.forward(),
+        //     camera_settings.distance,
+        //     false,
+        //     SpatialQueryFilter::default().with_masks([Layer::Environment]),
+        // ) {
+        //     // Ensure we are not in a solid object
+        //     // TODO: This is not working :((((((
+        //     if hit.time_of_impact != 0.0 {
+        //         new_camera_position *= hit.time_of_impact;
+        //     } else {
+        //         new_camera_position *= camera_settings.distance;
+        //     }
+        // } else {
+        //     new_camera_position *= camera_settings.distance;
+        // }
+
+        new_camera_position *= camera_settings.distance;
 
         let mut camera_transform = *focus_transform;
         camera_transform.translation += new_camera_position;
