@@ -27,7 +27,7 @@ impl OrbitCamera {
 impl Default for OrbitCamera {
     fn default() -> Self {
         Self {
-            rotation: Default::default(),
+            rotation: 180f32.to_radians(),
             view_angle_normalized: 0.5f32,
             // zoom_range: 8f32..=15f32,
             // zoom_height_range: 0.2f32..=8f32,

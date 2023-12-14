@@ -28,7 +28,7 @@ impl Plugin for UiPlugin {
                 (menu_ui, move_menu_camera).run_if(in_state(GameState::Menu)),
             )
             .add_systems(Update, (game_ui,).run_if(in_state(GameState::Main)))
-            .add_systems(Update, post_game_ui.run_if(in_state(GameState::Post)))
+            .add_systems(Update, post_game_ui.run_if(in_state(GameState::post())))
             .add_systems(Update, pause_menu_ui.run_if(in_state(GameState::Pause)))
             .insert_resource(KbgpSettings {
                 bindings: {
@@ -224,7 +224,8 @@ fn game_ui(
 fn post_game_ui(
     mut cmd: Commands,
     mut ctx: EguiContexts,
-    mut state: ResMut<NextState<GameState>>,
+    mut next_state: ResMut<NextState<GameState>>,
+    state: Res<State<GameState>>,
     font: Res<settings::FontSettings>,
     game_time: Res<GameTime>,
     mut current_level: ResMut<CurrentLevelIndex>,
@@ -250,45 +251,76 @@ fn post_game_ui(
                     ),
                     |ui| {
                         ui.vertical_centered_justified(|ui| {
-                            let time = game_time.final_time().unwrap();
-                            let seconds = time.as_secs();
-                            let millis = time.as_millis() % 1000;
-                            ui.label(
-                                egui::RichText::new(format!("{:0>2}:{:0>3}", seconds, millis))
-                                    .font(FontId::proportional(font.size_subtitle())),
-                            );
+                            let win = *match state.get() {
+                                GameState::Post { win } => win,
+                                _ => unreachable!(),
+                            };
+                            if win {
+                                let time = game_time.final_time().unwrap();
+                                let seconds = time.as_secs();
+                                let millis = time.as_millis() % 1000;
+                                ui.label(
+                                    egui::RichText::new(format!("{:0>2}:{:0>3}", seconds, millis))
+                                        .font(FontId::proportional(font.size_subtitle())),
+                                );
 
-                            // Go to the next nevel if there is a next level
-                            let maybe_next_level = current_level.0 + 1;
-                            match game_assets.levels.get(maybe_next_level) {
-                                Some(level) => {
-                                    ui.label(
-                                        egui::RichText::new("You win!")
-                                            .font(FontId::proportional(font.size_title()))
-                                            .color(Color32::GREEN),
-                                    );
-                                    if ui
-                                        .button("Next level")
-                                        .kbgp_navigation()
-                                        .kbgp_initial_focus()
-                                        .clicked()
-                                    {
-                                        current_level.0 += 1;
-                                        state.set(GameState::LevelTransition {
-                                            level: level.clone(),
-                                        });
+                                // Go to the next nevel if there is a next level
+                                let maybe_next_level = current_level.0 + 1;
+                                match game_assets.levels.get(maybe_next_level) {
+                                    Some(level) => {
+                                        ui.label(
+                                            egui::RichText::new("You win!")
+                                                .font(FontId::proportional(font.size_title()))
+                                                .color(Color32::DARK_GREEN),
+                                        );
+                                        if ui
+                                            .button("Next level")
+                                            .kbgp_navigation()
+                                            .kbgp_initial_focus()
+                                            .clicked()
+                                        {
+                                            current_level.0 += 1;
+                                            next_state.set(GameState::LevelTransition {
+                                                level: level.clone(),
+                                            });
+                                        }
+                                    }
+                                    None => {
+                                        ui.label(
+                                            egui::RichText::new("You beat the game epic style")
+                                                .font(FontId::proportional(font.size_title()))
+                                                .color(Color32::DARK_GREEN),
+                                        );
+
+                                        if ui
+                                            .button("Main menu")
+                                            .kbgp_navigation()
+                                            .kbgp_initial_focus()
+                                            .clicked()
+                                        {
+                                            next_state.set(GameState::Menu);
+                                        }
                                     }
                                 }
-                                None => {
-                                    ui.label(
-                                        egui::RichText::new("You beat the game epic style")
-                                            .font(FontId::proportional(font.size_title()))
-                                            .color(Color32::GREEN),
-                                    );
-
-                                    if ui.button("Main menu").clicked() {
-                                        state.set(GameState::Menu);
-                                    }
+                            } else {
+                                ui.label(
+                                    egui::RichText::new("Out of bounds!")
+                                        .font(FontId::proportional(font.size_title()))
+                                        .color(Color32::DARK_RED),
+                                );
+                                if ui
+                                    .button("Restart level")
+                                    .kbgp_navigation()
+                                    .kbgp_initial_focus()
+                                    .clicked()
+                                {
+                                    next_state.set(GameState::LevelTransition {
+                                        level: game_assets
+                                            .levels
+                                            .get(current_level.0)
+                                            .unwrap()
+                                            .clone(),
+                                    });
                                 }
                             }
                         })

@@ -9,7 +9,9 @@ pub enum GameState {
     Menu,
     Main,
     Pause,
-    Post,
+    Post {
+        win: bool,
+    },
     // Allows us to consolidate level spawn and cleanup code.
     // If no level specified, go to the main menu
     LevelTransition {
@@ -36,5 +38,9 @@ impl GameState {
         Self::LevelTransition {
             level: Default::default(),
         }
+    }
+    #[inline(always)]
+    pub fn post() -> Self {
+        Self::Post { win: false }
     }
 }

@@ -58,8 +58,14 @@ impl Plugin for LevelsPlugin {
                 process_colliders,
                 process_lights,
             ),
-        );
+        )
+        .add_systems(OnEnter(GameState::post()), finalize_timers);
     }
+}
+
+fn finalize_timers(mut timer: ResMut<GameTime>, time: Res<Time>) {
+    // Stop the game timer
+    timer.finish(&time);
 }
 
 fn cleanup(

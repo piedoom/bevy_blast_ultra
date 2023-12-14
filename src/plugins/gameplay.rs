@@ -17,13 +17,14 @@ impl Plugin for GameplayPlugin {
                 transition_on_win,
                 manage_goals,
                 deactivate_out_of_bounds_players,
+                check_for_loss,
                 // restart,
                 setup_goals.after(GltfBlueprintsSet::AfterSpawn),
             )
                 .run_if(in_state(GameState::Main)),
         )
         .add_systems(Update, toggle_pause)
-        .add_systems(OnExit(GameState::Main), pause_physics)
+        .add_systems(OnEnter(GameState::Pause), pause_physics)
         .add_systems(OnEnter(GameState::Main), unpause_physics);
     }
 }
@@ -108,10 +109,8 @@ fn transition_on_win(
 ) {
     if let Ok(game_manager) = game_manager.get_single() {
         if game_manager.current >= game_manager.goal {
-            // Stop the game timer
-            timer.finish(&time);
             // Game win
-            next_state.set(GameState::Post);
+            next_state.set(GameState::Post { win: true });
         }
     }
 }
@@ -120,7 +119,7 @@ fn transition_on_win(
 /// it for cleanup/respawn
 fn deactivate_out_of_bounds_players(
     mut cmd: Commands,
-    players: Query<(Entity, &Transform), With<Player>>,
+    players: Query<(Entity, &Transform), (With<Player>, With<Active>)>,
     floor: Query<&Transform, With<FloorBounds>>,
 ) {
     if let Ok(floor) = floor.get_single() {
@@ -129,6 +128,28 @@ fn deactivate_out_of_bounds_players(
                 cmd.entity(entity).remove::<Active>().insert(OutOfBounds);
             }
         });
+    }
+}
+
+fn check_for_loss(
+    mut next_state: ResMut<NextState<GameState>>,
+    all_players: Query<Entity, (With<Player>, Without<ScoredPlayer>)>,
+    active_players: Query<
+        (),
+        (
+            With<Player>,
+            Without<ScoredPlayer>,
+            With<Active>,
+            Without<OutOfBounds>,
+        ),
+    >,
+    new_oob_players: Query<(), (With<Player>, Added<OutOfBounds>)>,
+) {
+    if !new_oob_players.is_empty() {
+        // ensure we still have some active players
+        if active_players.is_empty() {
+            next_state.set(GameState::Post { win: false })
+        }
     }
 }
 
@@ -204,6 +225,3 @@ fn unpause_physics(mut physics_time: ResMut<Time<Physics>>) {
 //         cmd.spawn((FocalPoint, *transform));
 //     }
 // }
-
-/// TODO
-fn check_for_loss() {}
