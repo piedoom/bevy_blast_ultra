@@ -1,5 +1,5 @@
 use bevy::{audio::VolumeLevel, prelude::*};
-use bevy_gltf_blueprints::{BluePrintBundle, BlueprintName, GltfBlueprintsSet};
+use bevy_gltf_blueprints::GltfBlueprintsSet;
 use bevy_xpbd_3d::prelude::*;
 use leafwing_input_manager::prelude::*;
 
